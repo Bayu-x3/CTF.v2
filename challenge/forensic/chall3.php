@@ -1,31 +1,67 @@
 <?php
-  include '../headF.php';
+session_start();
+include '../../assets/functions.php';
+$isLoggedIn = isset($_SESSION['username']);
+if (!$isLoggedIn) {
+    header('Location: login.php');
+}
+$username = $_SESSION['username'];
+$result = mysqli_query($conn, "SELECT * FROM tbl_users WHERE username = '$username'");
+$row = mysqli_fetch_assoc($result);
+$correctF_3 = $row['correctF_3'];
+?>
+<!-- form input jawaban -->
+<?php
+require '../headF.php';
 ?>
 <div class="card text-center">
   <div class="card-header">
-    <h1 style="color: black;" weight="bold;">File Locked</h1>
-    <h5 style="color: black;">Hallo semua, nama aku adalah Default, aku menjadi salah satu ADMIN di sebuah grub Facebook yang bernama WORDPRESS, ada sebuah postingan yang belum aku acc karena file nya gak bisa di buka, bantu aku untuk membukanya</h5>
-    <a href="https://www.mediafire.com/file/ljvbv9v537kd65c/flag.docx/file"><h5>Click here</a></h5>
+  <h1 style="color: black;" weight="bold;">ROTi</h1>
+    <h5 style="color: black;">Hari ini kedua orangtuaku memberikanku ROTi ulang tahun karena aku berulang tahun yang ke 13 tahun</h5>
+    <a href="https://pastebin.com/raw/kC0fvBCT" target="_blank"><h5>Click here</a></h5>
   </div>
   <div class="card-body">
 <form method="post">
-					<input type="text" id="chall3" class="form-control" required="required" placeholder="FLGx-3{flagnya}">
+					<input type="text" id="f3" name="f3" class="form-control" required="required" placeholder="FLGx-3{flagnya}">
 							<center><br>
-                            <input type="button" value="Check Flag" onclick="c3()" class='btn btn-success'><span id="c3"></span></strong></p>
+                            <button type="submit" name="submit" value="Check Flag" class='btn btn-success'>Check Flag</button>
 		</center>		
 		</form>
   </div>
-  <script type="text/javascript">
-      function c3() {
-        var a = document.getElementById("chall3");
-        if ((a.value == "FLGx-3{g4mbar_rilll}") || (a.value == "{g4mbar_rilll}")) {
-        document.getElementById('c3').innerHTML = swal('Flag Correct!', 'Congratulation!!!', 'success')
+    </div>
+    <?php
+    if ($correctF_3 == 1) {
+        echo "<script>
+        swal('You have answered!!', 'What the fck r u doing bro?!!!', 'error');
+        </script>";
     } else {
-        document.getElementById('c3').innerHTML = swal('Flag Incorrect!!', 'Try Again!', 'error')
+        if (isset($_POST['submit'])) {
+            // baca jawaban dari form input
+            $jawaban = $_POST["f3"];
+            // cek apakah jawaban yang diberikan user benar atau salah
+            if ($jawaban == "FLGx-3{roti_ulang}") {
+                // jawaban benar, tambahkan 5 poin ke database dan update status jawaban user menjadi 1
+                $query = "UPDATE tbl_users SET poin = poin + 17, correctF_3 = 1
+                WHERE username = '$username'";
+                if ($conn->query($query) === TRUE) {
+                    echo "<script>
+                    swal('Correct Flag!', 'Point success add', 'success');
+                    </script>";
+                } else {
+                    echo "Error: " . $query . "<br>" . $conn->error;
+                }
+            } else {
+                // jawaban salah, tampilkan pesan "Salah"
+                echo "<script>
+                swal('Wrong Flag!!', 'Enter a correct Flag!!!', 'error');
+                </script>";
+            }
+        }
     }
-      }
-      </script>
-  <br><br>
-<?php
-	include '../../footer.php';
-?>
+    // tutup koneksi ke database
+    $conn->close();
+    ?>
+    <br><br>
+    <?php
+    include '../../assets/footer.php';
+    ?>
